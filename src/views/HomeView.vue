@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { Ref } from 'vue';
-import { useStorage } from '@vueuse/core';
+import { useStorage, useTimeout } from '@vueuse/core';
 import Swal from 'sweetalert2';
-import { TrashIcon, PencilSquareIcon, PlusCircleIcon, Bars2Icon } from '@heroicons/vue/24/solid';
+import { PlusCircleIcon } from '@heroicons/vue/24/solid';
 
 import TaskInput from '@/components/TaskInput.vue';
 import TaskItem from '@/components/TaskItem.vue';
@@ -56,8 +56,12 @@ function addTask(): void {
   inputTaskTitle.value = '';
 }
 
-// CODE BLOCK - delete
+// CODE BLOCK - delete and undo delete
 const deleteTaskId: Ref<number | null> = ref(null);
+const previousTasks: Ref<task[]> = ref([]);
+
+const { ready, start, stop } = useTimeout(5000, { controls: true });
+stop();
 
 function triggerDelete(id: number): void {
   deleteTaskId.value = id;
@@ -77,10 +81,16 @@ function triggerDelete(id: number): void {
 }
 
 function deleteTask() {
+  previousTasks.value = [...tasks.value];
   tasks.value = tasks.value.filter((task) => task.id !== deleteTaskId.value);
+  start();
 }
 
-// CODE BLOCK - undo delete
+function undoDeleteTask() {
+  tasks.value = previousTasks.value;
+  previousTasks.value = [];
+  stop();
+}
 
 // CODE BLOCK - edit
 const editTaskId: Ref<number | null> = ref(null);
@@ -124,7 +134,7 @@ function updateTask(): void {
 </script>
 
 <template>
-  <main class="mx-auto max-w-xl py-4 px-2">
+  <main class="mx-auto max-w-xl py-4 px-2 pb-24">
     <h1 class="font-bold mb-8 text-4xl">Simple Todos</h1>
 
     <div>
@@ -168,5 +178,13 @@ function updateTask(): void {
         />
       </template>
     </div>
+
+    <div v-if="!ready" class="fixed bottom-0 left-0 right-0 p-4 max-w-xl mx-auto">
+      <div class="bg-gray-800 text-white p-4 rounded-md text-center">
+        Task deleted. <button class="underline cursor-pointer" @click="undoDeleteTask">Undo</button>
+      </div>
+    </div>
   </main>
 </template>
+
+<style scoped></style>

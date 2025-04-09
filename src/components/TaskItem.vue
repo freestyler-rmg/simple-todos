@@ -29,7 +29,7 @@ function triggerComplete(id: number): void {
 
 <template>
   <div class="flex mb-2">
-    <div class="p-1 pl-0"><Bars2Icon class="size-6 text-blue-500" /></div>
+    <div class="p-1 pl-0 cursor-move"><Bars2Icon class="size-6 text-blue-500" /></div>
     <div class="p-1" @click="triggerComplete(props.id)">
       <input type="checkbox" :value="props.completed" />
     </div>
