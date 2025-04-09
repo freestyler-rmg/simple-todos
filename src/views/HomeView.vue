@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import { TrashIcon, PencilSquareIcon, PlusCircleIcon, Bars2Icon } from '@heroicons/vue/24/solid';
 
 import TaskInput from '@/components/TaskInput.vue';
+import TaskItem from '@/components/TaskItem.vue';
 
 interface task {
   id: number;
@@ -25,7 +26,12 @@ const SwalStyledButton = Swal.mixin({
 const tasks: Ref<task[]> = useStorage('tasks', []);
 
 // CODE BLOCK - complete a task
-const strikeThroughClass: Ref<string> = ref('line-through text-gray-500');
+function triggerComplete(id: number): void {
+  const task = tasks.value.find((task) => task.id === id);
+  if (task) {
+    task.completed = !task.completed;
+  }
+}
 
 // CODE BLOCK - add task
 const isMainAddTaskInputHidden: Ref<boolean> = ref(true);
@@ -73,6 +79,48 @@ function triggerDelete(id: number): void {
 function deleteTask() {
   tasks.value = tasks.value.filter((task) => task.id !== deleteTaskId.value);
 }
+
+// CODE BLOCK - undo delete
+
+// CODE BLOCK - edit
+const editTaskId: Ref<number | null> = ref(null);
+const inputTaskTitleEdit: Ref<string> = ref('');
+const taskArrayIndex: Ref<number | null> = ref(null);
+
+function triggerEdit(id: number): void {
+  if (id !== editTaskId.value) {
+    closeEdit();
+  }
+  taskArrayIndex.value = tasks.value.findIndex((task) => task.id === id);
+  if (taskArrayIndex.value !== -1) {
+    tasks.value[taskArrayIndex.value].onEdit = !tasks.value[taskArrayIndex.value].onEdit;
+    inputTaskTitleEdit.value = tasks.value[taskArrayIndex.value].title;
+    editTaskId.value = id;
+  }
+}
+
+function closeEdit(): void {
+  if (taskArrayIndex.value !== -1 && taskArrayIndex.value !== null) {
+    tasks.value[taskArrayIndex.value].onEdit = false;
+    inputTaskTitleEdit.value = '';
+    editTaskId.value = null;
+    taskArrayIndex.value = null;
+  }
+}
+
+function updateTask(): void {
+  if (inputTaskTitleEdit.value.trim() === '') {
+    closeEdit();
+    return;
+  }
+
+  if (taskArrayIndex.value !== -1 && taskArrayIndex.value !== null) {
+    const task = tasks.value[taskArrayIndex.value];
+    task.title = inputTaskTitleEdit.value;
+
+    closeEdit();
+  }
+}
 </script>
 
 <template>
@@ -91,7 +139,7 @@ function deleteTask() {
         <TaskInput
           v-model="inputTaskTitle"
           @close-editor="toggleMainAddTaskInput"
-          @add-task="addTask"
+          @update-task="addTask"
         />
       </div>
     </div>
@@ -99,30 +147,26 @@ function deleteTask() {
     <hr class="my-4" />
 
     <div>
-      <div v-for="task in tasks" class="flex mb-2" :key="task.id">
-        <div class="p-1 pl-0"><Bars2Icon class="size-6 text-blue-500" /></div>
-        <div class="p-1"><input type="checkbox" v-model="task.completed" /></div>
-        <div class="p-1 flex-auto" :class="{ [strikeThroughClass]: task.completed }">
-          {{ task.title }}
-        </div>
-        <div class="flex p-1">
-          <div>
-            <div
-              class="border border-gray-300 rounded-sm cursor-pointer w-6 h-6 flex items-center justify-center"
-            >
-              <PencilSquareIcon class="size-4 text-blue-500" />
-            </div>
-          </div>
-          <div class="ml-2">
-            <div
-              class="border border-gray-300 rounded-sm cursor-pointer w-6 h-6 flex items-center justify-center"
-              @click="triggerDelete(task.id)"
-            >
-              <TrashIcon class="size-4 text-blue-500" />
-            </div>
-          </div>
-        </div>
-      </div>
+      <template v-for="task in tasks" :key="task.id">
+        <TaskInput
+          v-if="task.onEdit"
+          v-model="inputTaskTitleEdit"
+          @close-editor="closeEdit"
+          @update-task="updateTask"
+          button-text="Update"
+          class="mb-4"
+        />
+        <TaskItem
+          v-else
+          :id="task.id"
+          :title="task.title"
+          :completed="task.completed"
+          :onEdit="task.onEdit"
+          @triggerDelete="triggerDelete(task.id)"
+          @triggerEdit="triggerEdit(task.id)"
+          @triggerComplete="triggerComplete(task.id)"
+        />
+      </template>
     </div>
   </main>
 </template>
