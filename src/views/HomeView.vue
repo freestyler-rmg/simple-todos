@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { Ref } from 'vue';
+import { ref, type Ref } from 'vue';
 import { useStorage, useTimeout } from '@vueuse/core';
 import Swal from 'sweetalert2';
+import 'drag-drop-touch';
 import { PlusCircleIcon } from '@heroicons/vue/24/solid';
 
 import TaskInput from '@/components/TaskInput.vue';
@@ -131,6 +131,33 @@ function updateTask(): void {
     closeEdit();
   }
 }
+
+// CODE BLOCK - drag and drop
+const dragTaskId: Ref<number | null> = ref(null);
+
+function onDragStart(id: number) {
+  dragTaskId.value = id;
+}
+
+function onDrop(dropTaskId: number) {
+  const dragTaskIndex = tasks.value.findIndex((task) => task.id === dragTaskId.value);
+  const dropTaskIndex = tasks.value.findIndex((task) => task.id === dropTaskId);
+
+  if (dragTaskIndex !== -1 && dropTaskIndex !== -1) {
+    const draggedTask = tasks.value.splice(dragTaskIndex, 1);
+    if (dragTaskIndex < dropTaskIndex) {
+      tasks.value.splice(dropTaskIndex - 1, 0, ...draggedTask);
+    } else {
+      tasks.value.splice(dropTaskIndex, 0, ...draggedTask);
+    }
+  }
+
+  dragTaskId.value = null;
+}
+
+function onDragEnd() {
+  dragTaskId.value = null;
+}
 </script>
 
 <template>
@@ -175,8 +202,12 @@ function updateTask(): void {
           @triggerDelete="triggerDelete(task.id)"
           @triggerEdit="triggerEdit(task.id)"
           @triggerComplete="triggerComplete(task.id)"
+          @onDragStart="onDragStart(task.id)"
+          @onDragEnd="onDragEnd()"
+          @onDrop="onDrop(task.id)"
         />
       </template>
+      <div class="p-4" @drop="onDrop($event)" @dragover.prevent @dragenter.prevent>dropzone</div>
     </div>
 
     <div v-if="!ready" class="fixed bottom-0 left-0 right-0 p-4 max-w-xl mx-auto">
