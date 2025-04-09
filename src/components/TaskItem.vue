@@ -31,7 +31,7 @@ function triggerComplete(id: number): void {
   <div class="flex mb-2">
     <div class="p-1 pl-0 cursor-move"><Bars2Icon class="size-6 text-blue-500" /></div>
     <div class="p-1" @click="triggerComplete(props.id)">
-      <input type="checkbox" :value="props.completed" />
+      <input type="checkbox" :checked="props.completed" />
     </div>
     <div class="p-1 flex-auto" :class="{ [strikeThroughClass]: props.completed }">
       {{ props.title }}
@@ -40,7 +40,7 @@ function triggerComplete(id: number): void {
       <div>
         <div
           @click="triggerEdit(props.id)"
-          class="border border-gray-300 rounded-sm cursor-pointer w-6 h-6 flex items-center justify-center"
+          class="border border-gray-300 rounded-sm cursor-pointer w-8 h-8 flex items-center justify-center"
         >
           <PencilSquareIcon class="size-4 text-blue-500" />
         </div>
@@ -48,7 +48,7 @@ function triggerComplete(id: number): void {
       <div class="ml-2">
         <div
           @click="triggerDelete(props.id)"
-          class="border border-gray-300 rounded-sm cursor-pointer w-6 h-6 flex items-center justify-center"
+          class="border border-gray-300 rounded-sm cursor-pointer w-8 h-8 flex items-center justify-center"
         >
           <TrashIcon class="size-4 text-blue-500" />
         </div>
