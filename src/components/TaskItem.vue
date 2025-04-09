@@ -54,17 +54,18 @@ function onDragEnd(): void {
 }
 
 function onDrop(id: number): void {
+  showDropzone.value = false;
   emit('onDrop', id);
 }
 </script>
 
 <template>
   <div @drop="onDrop(props.id)" @dragover.prevent @dragenter.prevent>
-    <div @dragover="onDragOver()" @dragleave="onDragLeave()" @dragend="onDragEnd()">
-      <div class="bg-gray-300" :class="{ hidden: !showDropzone }">
+    <div class="my-2" @dragover="onDragOver()" @dragleave="onDragLeave()" @dragend="onDragEnd()">
+      <div class="bg-gray-300 invisible" :class="{ visible: showDropzone }">
         <hr class="border-blue-500" />
       </div>
-      <div class="flex my-2" draggable="true" @dragstart="onDragStart(props.id)">
+      <div class="flex" draggable="true" @dragstart="onDragStart(props.id)">
         <div class="p-1 pl-0 cursor-move"><Bars2Icon class="size-6 text-blue-500" /></div>
         <div class="p-1" @click="triggerComplete(props.id)" draggable="false">
           <input type="checkbox" :checked="props.completed" />
