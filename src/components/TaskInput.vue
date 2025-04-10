@@ -22,12 +22,14 @@ function updateTask() {
 
 <template>
   <div>
-    <input
-      v-model="inputTaskTitle"
-      type="text"
-      class="border-2 border-gray-300 rounded-md p-2 w-full"
-      placeholder="Task name..."
-    />
+    <form @submit.prevent="updateTask">
+      <input
+        v-model="inputTaskTitle"
+        type="text"
+        class="border-2 border-gray-300 rounded-md p-2 w-full"
+        placeholder="Task name..."
+      />
+    </form>
     <div class="flex justify-end mt-2">
       <button
         class="bg-gray-500 text-white rounded-md py-1 px-3 cursor-pointer"

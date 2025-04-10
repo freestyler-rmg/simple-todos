@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue';
+import { ref, type Ref, computed } from 'vue';
 import { useStorage, useTimeout } from '@vueuse/core';
 import Swal from 'sweetalert2';
 import 'drag-drop-touch';
@@ -17,8 +17,10 @@ interface task {
 
 const SwalStyledButton = Swal.mixin({
   customClass: {
-    confirmButton: 'bg-red-500 text-white py-2 px-4 rounded-md cursor-pointer mx-2',
-    cancelButton: 'bg-gray-500 text-white py-2 px-4 rounded-md cursor-pointer mx-2',
+    confirmButton:
+      'bg-red-500 text-white py-2 px-4 rounded-md cursor-pointer mx-2 focus:outline-none',
+    cancelButton:
+      'bg-gray-500 text-white py-2 px-4 rounded-md cursor-pointer mx-2 focus:outline-none',
   },
   buttonsStyling: false,
 });
@@ -134,6 +136,9 @@ function updateTask(): void {
 
 // CODE BLOCK - drag and drop
 const dragTaskId: Ref<number | null> = ref(null);
+const showDropzone: Ref<boolean> = ref(false);
+
+const tasksLength = computed(() => tasks.value.length);
 
 function onDragStart(id: number) {
   dragTaskId.value = id;
@@ -141,7 +146,13 @@ function onDragStart(id: number) {
 
 function onDrop(dropTaskId: number) {
   const dragTaskIndex = tasks.value.findIndex((task) => task.id === dragTaskId.value);
-  const dropTaskIndex = tasks.value.findIndex((task) => task.id === dropTaskId);
+  let dropTaskIndex = null;
+
+  if (dropTaskId === tasksLength.value) {
+    dropTaskIndex = tasksLength.value;
+  } else {
+    dropTaskIndex = tasks.value.findIndex((task) => task.id === dropTaskId);
+  }
 
   if (dragTaskIndex !== -1 && dropTaskIndex !== -1) {
     const draggedTask = tasks.value.splice(dragTaskIndex, 1);
@@ -153,16 +164,28 @@ function onDrop(dropTaskId: number) {
   }
 
   dragTaskId.value = null;
+  showDropzone.value = false;
 }
 
 function onDragEnd() {
   dragTaskId.value = null;
 }
+
+function visibleDropzone() {
+  showDropzone.value = true;
+}
+
+function hideDropzone() {
+  showDropzone.value = false;
+}
 </script>
 
 <template>
-  <main class="mx-auto max-w-xl py-4 px-2 pb-24">
-    <h1 class="font-bold mb-8 text-4xl">Simple Todos</h1>
+  <main class="mx-auto max-w-xl pt-4 md:pt-8 px-4 pb-24">
+    <div class="mb-8">
+      <h1 class="font-bold text-4xl mb-2">Simple Todos</h1>
+      <p class="text-gray-400">Revisit this url to see your existing tasks</p>
+    </div>
 
     <div>
       <div
@@ -207,7 +230,16 @@ function onDragEnd() {
           @onDrop="onDrop(task.id)"
         />
       </template>
-      <div class="p-4" @drop="onDrop($event)" @dragover.prevent @dragenter.prevent>dropzone</div>
+      <div @drop="onDrop(tasksLength)" @dragover.prevent @dragenter.prevent>
+        <div
+          class="pb-16"
+          @dragover="visibleDropzone()"
+          @dragleave="hideDropzone()"
+          @dragend="hideDropzone()"
+        >
+          <hr class="border-blue-500 invisible" :class="{ visible: showDropzone }" />
+        </div>
+      </div>
     </div>
 
     <div v-if="!ready" class="fixed bottom-0 left-0 right-0 p-4 max-w-xl mx-auto">

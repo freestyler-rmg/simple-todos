@@ -62,7 +62,7 @@ function onDrop(id: number): void {
 <template>
   <div @drop="onDrop(props.id)" @dragover.prevent @dragenter.prevent>
     <div class="my-2" @dragover="onDragOver()" @dragleave="onDragLeave()" @dragend="onDragEnd()">
-      <div class="bg-gray-300 invisible" :class="{ visible: showDropzone }">
+      <div class="invisible" :class="{ visible: showDropzone }">
         <hr class="border-blue-500" />
       </div>
       <div class="flex" draggable="true" @dragstart="onDragStart(props.id)">
