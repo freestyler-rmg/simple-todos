@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import type { Ref } from 'vue';
+import { onMounted, useTemplateRef, type Ref } from 'vue';
+import { useFocus } from '@vueuse/core';
 
 interface props {
   buttonText?: string;
@@ -18,15 +19,24 @@ function closeEditor() {
 function updateTask() {
   emit('updateTask');
 }
+
+// CODE BLOCK - focus
+const input = useTemplateRef<HTMLInputElement>('input');
+const { focused: inputFocus } = useFocus(input, { initialValue: true });
+
+onMounted(() => {
+  inputFocus.value = true;
+});
 </script>
 
 <template>
   <div>
     <form @submit.prevent="updateTask">
       <input
+        ref="input"
         v-model="inputTaskTitle"
         type="text"
-        class="border-2 border-gray-300 rounded-md p-2 w-full"
+        class="border-2 border-gray-300 rounded-md p-2 w-full focus:outline-none focus:border-blue-500"
         placeholder="Task name..."
       />
     </form>
