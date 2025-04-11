@@ -65,8 +65,10 @@ function onDrop(id: number): void {
       <div class="invisible" :class="{ visible: showDropzone }">
         <hr class="border-blue-500" />
       </div>
-      <div class="flex" draggable="true" @dragstart="onDragStart(props.id)">
-        <div class="p-1 pl-0 cursor-move"><Bars2Icon class="size-6 text-blue-500" /></div>
+      <div class="flex">
+        <div class="p-1 pl-0 cursor-move" draggable="true" @dragstart="onDragStart(props.id)">
+          <Bars2Icon class="size-6 text-blue-500" />
+        </div>
         <div class="p-1" @click="triggerComplete(props.id)" draggable="false">
           <input type="checkbox" :checked="props.completed" />
         </div>
