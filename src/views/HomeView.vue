@@ -144,11 +144,11 @@ function onDragStart(id: number) {
   dragTaskId.value = id;
 }
 
-function onDrop(dropTaskId: number) {
+function onDrop(dropTaskId: number, lastItem: boolean = false) {
   const dragTaskIndex = tasks.value.findIndex((task) => task.id === dragTaskId.value);
   let dropTaskIndex = null;
 
-  if (dropTaskId === tasksLength.value) {
+  if (lastItem) {
     dropTaskIndex = tasksLength.value;
   } else {
     dropTaskIndex = tasks.value.findIndex((task) => task.id === dropTaskId);
@@ -230,7 +230,7 @@ function hideDropzone() {
           @onDrop="onDrop(task.id)"
         />
       </template>
-      <div @drop="onDrop(tasksLength)" @dragover.prevent @dragenter.prevent>
+      <div @drop="onDrop(tasksLength, true)" @dragover.prevent @dragenter.prevent>
         <div
           class="pb-16"
           @dragover="visibleDropzone()"
