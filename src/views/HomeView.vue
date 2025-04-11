@@ -184,7 +184,7 @@ function hideDropzone() {
   <main class="mx-auto max-w-xl pt-4 md:pt-8 px-4 pb-24">
     <div class="mb-8">
       <h1 class="font-bold text-4xl mb-2">Simple Todos</h1>
-      <p class="text-gray-400">Revisit this url to see your existing tasks</p>
+      <p class="text-gray-400">Revisit this url from same device to see your existing tasks</p>
     </div>
 
     <div>
